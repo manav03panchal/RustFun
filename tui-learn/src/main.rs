@@ -1,5 +1,10 @@
 use crossterm::event::{self, Event};
-use ratatui::{text::Text, Frame};
+use ratatui::{
+    layout::Direction,
+    layout::{Constraint, Layout},
+    text::Text,
+    Frame,
+};
 
 fn main() {
     let mut terminal = ratatui::init();
@@ -14,6 +19,17 @@ fn main() {
 }
 
 fn draw(frame: &mut Frame) {
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Percentage(40),
+            Constraint::Percentage(20),
+            Constraint::Percentage(40),
+        ])
+        .split(frame.area());
     let text = Text::raw("Hello, World!");
-    frame.render_widget(text, frame.area());
+    frame.render_widget(
+        ratatui::widgets::Paragraph::new(text).alignment(ratatui::layout::Alignment::Center),
+        chunks[1],
+    );
 }
