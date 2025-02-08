@@ -1,8 +1,8 @@
 use crossterm::event::{self, Event};
 use ratatui::{
-    layout::Direction,
-    layout::{Constraint, Layout},
+    layout::{Alignment, Constraint, Direction, Layout},
     text::Text,
+    widgets::{Block, Borders, Paragraph},
     Frame,
 };
 
@@ -21,15 +21,20 @@ fn main() {
 fn draw(frame: &mut Frame) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([
-            Constraint::Percentage(40),
-            Constraint::Percentage(20),
-            Constraint::Percentage(40),
-        ])
+        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
         .split(frame.area());
-    let text = Text::raw("Hello, World!");
-    frame.render_widget(
-        ratatui::widgets::Paragraph::new(text).alignment(ratatui::layout::Alignment::Center),
-        chunks[1],
-    );
+    // let text = Text::raw("Hello, World!");
+    let text_chunks = ["top", "bottom"];
+    // frame.render_widget(
+    //     ratatui::widgets::Paragraph::new(text).alignment(ratatui::layout::Alignment::Center),
+    //     chunks[1],
+    // );
+    for (i, chunk_text) in text_chunks.iter().enumerate() {
+        frame.render_widget(
+            Paragraph::new(*chunk_text)
+                .alignment(Alignment::Center)
+                .block(Block::new().borders(Borders::ALL)),
+            chunks[i],
+        );
+    }
 }
