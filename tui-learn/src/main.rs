@@ -1,21 +1,29 @@
-use crossterm::event::{self, Event};
+use std::time::Duration;
+
+use color_eyre::{eyre::Context, Result};
+use crossterm::event::{self, Event, KeyCode};
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout},
-    text::Text,
     widgets::{Block, Borders, Paragraph},
-    Frame,
+    DefaultTerminal, Frame, Terminal,
 };
 
-fn main() {
+fn main() -> Result<()> {
+    color_eyre::install()?;
     let mut terminal = ratatui::init();
-    loop {
-        terminal.draw(draw).expect("Failed to draw frame");
+    let app_result = run(terminal).context("app loop failed");
+    ratatui::restore();
+    app_result
+}
 
-        if matches!(event::read().expect("failed to read event"), Event::Key(_)) {
+fn run(mut terminal: DefaultTerminal) -> Result<()> {
+    loop {
+        terminal.draw(draw)?;
+        if should_quit()? {
             break;
         }
     }
-    ratatui::restore();
+    Ok(())
 }
 
 fn draw(frame: &mut Frame) {
@@ -38,3 +46,13 @@ fn draw(frame: &mut Frame) {
         );
     }
 }
+
+fn should_quit() -> Result<bool> {
+    if event::poll(Duration::from_millis(250)).context("event polling failed")? {
+        if let Event::Key(key) = event::read().context("event reading failed")? {
+            return Ok(KeyCode::Char('q') == key.code);
+        }
+    }
+    Ok(false)
+}
+
